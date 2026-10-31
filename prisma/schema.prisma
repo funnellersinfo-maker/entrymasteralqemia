@@ -1,0 +1,28 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Prospectos capturados desde el formulario del CTA final
+model Lead {
+  id                 String   @id @default(cuid())
+  name               String
+  whatsapp           String
+  email              String
+  experience         String
+  goal               String
+  hasMasterShopAccount Boolean
+  source             String   @default("experiencia-web")
+  createdAt          DateTime @default(now())
+}
+
+// Configuración editable de la experiencia (texts, links, mentor, etc.)
+model SiteConfig {
+  id        String   @id @default("main")
+  data      String
+  updatedAt DateTime @updatedAt
+}

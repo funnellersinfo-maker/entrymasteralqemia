@@ -1,0 +1,215 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-body);
+  --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-unbounded);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+/* La experiencia MasterShop es siempre oscura */
+:root {
+  --radius: 0.75rem;
+  --background: oklch(0.11 0.03 300);
+  --foreground: oklch(0.96 0.01 300);
+  --card: oklch(0.16 0.035 300);
+  --card-foreground: oklch(0.96 0.01 300);
+  --popover: oklch(0.15 0.035 300);
+  --popover-foreground: oklch(0.96 0.01 300);
+  --primary: oklch(0.62 0.24 300);
+  --primary-foreground: oklch(0.98 0.01 300);
+  --secondary: oklch(0.22 0.05 300);
+  --secondary-foreground: oklch(0.96 0.01 300);
+  --muted: oklch(0.2 0.04 300);
+  --muted-foreground: oklch(0.68 0.03 300);
+  --accent: oklch(0.25 0.07 300);
+  --accent-foreground: oklch(0.96 0.01 300);
+  --destructive: oklch(0.65 0.22 25);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 14%);
+  --ring: oklch(0.62 0.24 300);
+  --chart-1: oklch(0.62 0.24 300);
+  --chart-2: oklch(0.7 0.2 330);
+  --chart-3: oklch(0.58 0.22 275);
+  --chart-4: oklch(0.75 0.18 340);
+  --chart-5: oklch(0.66 0.2 290);
+  --sidebar: oklch(0.16 0.035 300);
+  --sidebar-foreground: oklch(0.96 0.01 300);
+  --sidebar-primary: oklch(0.62 0.24 300);
+  --sidebar-primary-foreground: oklch(0.98 0.01 300);
+  --sidebar-accent: oklch(0.25 0.07 300);
+  --sidebar-accent-foreground: oklch(0.96 0.01 300);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.62 0.24 300);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "ss01", "cv11";
+  }
+  ::selection {
+    background: oklch(0.62 0.24 300 / 45%);
+    color: white;
+  }
+}
+
+@layer utilities {
+  /* Texto con degradado neón */
+  .text-gradient {
+    @apply bg-gradient-to-r from-fuchsia-400 via-purple-400 to-violet-300 bg-clip-text text-transparent;
+  }
+  .text-gradient-soft {
+    @apply bg-gradient-to-r from-purple-300 via-fuchsia-300 to-purple-200 bg-clip-text text-transparent;
+  }
+  /* Tarjeta de cristal oscura */
+  .glass-card {
+    @apply rounded-2xl border border-white/10 bg-white/[0.04] backdrop-blur-xl;
+  }
+  .glass-card-hover {
+    @apply transition-all duration-300 hover:border-purple-500/40 hover:bg-white/[0.07] hover:shadow-[0_0_45px_-12px_rgba(168,85,247,0.45)];
+  }
+  /* Resplandor neón */
+  .neon-glow {
+    box-shadow:
+      0 0 24px -6px rgba(168, 85, 247, 0.5),
+      0 0 64px -20px rgba(217, 70, 239, 0.35);
+  }
+  .neon-glow-strong {
+    box-shadow:
+      0 0 34px -4px rgba(168, 85, 247, 0.65),
+      0 0 90px -16px rgba(217, 70, 239, 0.45);
+  }
+  /* Rejilla tecnológica de fondo */
+  .bg-tech-grid {
+    background-image:
+      linear-gradient(rgba(168, 85, 247, 0.055) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(168, 85, 247, 0.055) 1px, transparent 1px);
+    background-size: 44px 44px;
+    mask-image: radial-gradient(ellipse 90% 70% at 50% 30%, black 30%, transparent 75%);
+  }
+  /* Puntos de rejilla */
+  .bg-tech-dots {
+    background-image: radial-gradient(rgba(168, 85, 247, 0.16) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+  /* Barra de desplazamiento personalizada */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(168, 85, 247, 0.35);
+    border-radius: 999px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(168, 85, 247, 0.6);
+  }
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(168, 85, 247, 0.35) transparent;
+  }
+  /* Animación de pulso para CTA */
+  .animate-pulse-glow {
+    animation: pulse-glow 2.6s ease-in-out infinite;
+  }
+  @keyframes pulse-glow {
+    0%,
+    100% {
+      box-shadow:
+        0 0 22px -6px rgba(168, 85, 247, 0.55),
+        0 0 60px -18px rgba(217, 70, 239, 0.35);
+    }
+    50% {
+      box-shadow:
+        0 0 34px -4px rgba(168, 85, 247, 0.85),
+        0 0 90px -12px rgba(217, 70, 239, 0.55);
+    }
+  }
+  /* Destello de escaneo */
+  .animate-scan {
+    animation: scan 3.2s linear infinite;
+  }
+  @keyframes scan {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(200%);
+    }
+  }
+  /* Flotación suave */
+  .animate-float {
+    animation: float 7s ease-in-out infinite;
+  }
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-14px);
+    }
+  }
+  .animate-float-slow {
+    animation: float 11s ease-in-out infinite;
+  }
+  @keyframes shimmer {
+    0% {
+      background-position: -200% center;
+    }
+    100% {
+      background-position: 200% center;
+    }
+  }
+  .animate-shimmer {
+    background-size: 200% auto;
+    animation: shimmer 3.5s linear infinite;
+  }
+}
