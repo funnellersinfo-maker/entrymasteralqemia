@@ -1,11 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: "standalone",
-  /* config options here */
-  typescript: {
-    ignoreBuildErrors: true,
-  },
+  // Exportación estática para Cloudflare Pages (obligatorio)
+  output: "export",
+  images: { unoptimized: true },
+  typescript: { ignoreBuildErrors: true },
   reactStrictMode: false,
 };
 

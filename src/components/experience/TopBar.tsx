@@ -1,10 +1,10 @@
 "use client"
 
+import Image from "next/image"
 import { motion } from "framer-motion"
 import { Zap, Award } from "lucide-react"
 import { TOTAL_STAGES } from "@/lib/stages"
 import type { SiteConfig } from "@/lib/content"
-import { cn } from "@/lib/utils"
 
 export function TopBar({
   progressPercent,
@@ -13,7 +13,6 @@ export function TopBar({
   xp,
   badgeCount,
   config,
-  onOpenAdmin,
 }: {
   progressPercent: number
   stageLabel: string
@@ -21,7 +20,6 @@ export function TopBar({
   xp: number
   badgeCount: number
   config: SiteConfig
-  onOpenAdmin: () => void
 }) {
   return (
     <header className="fixed inset-x-0 top-0 z-40 border-b border-white/[0.07] bg-[#0a0614]/85 backdrop-blur-xl">
@@ -29,8 +27,14 @@ export function TopBar({
         {/* Fila superior */}
         <div className="mb-2 flex items-center justify-between gap-2">
           <div className="flex min-w-0 items-center gap-2.5">
-            <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-purple-600 to-fuchsia-600 font-display text-[10px] font-bold text-white neon-glow sm:h-9 sm:w-9 sm:text-xs">
-              MS
+            <div className="relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-emerald-500/25 bg-[#03130b] sm:h-9 sm:w-9">
+              <Image
+                src={config.mastershop.logoUrl}
+                alt=""
+                width={36}
+                height={36}
+                className="h-full w-full object-cover"
+              />
             </div>
             <div className="min-w-0 leading-tight">
               <p className="truncate font-display text-[11px] font-bold tracking-wide text-white sm:text-sm">
@@ -61,25 +65,6 @@ export function TopBar({
               <Award className="h-3 w-3 sm:h-3.5 sm:w-3.5" aria-hidden />
               <span className="tabular-nums">{badgeCount}</span>
             </span>
-            {/* Acceso discreto al panel de administración */}
-            <button
-              onClick={onOpenAdmin}
-              aria-label="Abrir panel de configuración"
-              title="Panel de configuración"
-              className="rounded-md p-1.5 text-zinc-600 transition-colors hover:text-purple-300 focus-visible:outline-2 focus-visible:outline-purple-400"
-            >
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                className="h-3.5 w-3.5 sm:h-4 sm:w-4"
-                aria-hidden
-              >
-                <circle cx="12" cy="12" r="3" />
-                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.01a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.01a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
-              </svg>
-            </button>
           </div>
         </div>
 

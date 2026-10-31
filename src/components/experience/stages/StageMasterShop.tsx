@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import { motion } from "framer-motion"
 import { Globe2 } from "lucide-react"
 import type { StageProps } from "../ExperienceApp"
@@ -16,35 +17,42 @@ export function StageMasterShop({ config, stageIndex }: StageProps) {
       {/* Qué es MasterShop */}
       <StageSection>
         <div className="glass-card relative overflow-hidden p-5 sm:p-6">
-          <div className="pointer-events-none absolute -top-16 -right-16 h-48 w-48 rounded-full bg-purple-600/20 blur-3xl" />
+          <div className="pointer-events-none absolute -top-16 -right-16 h-48 w-48 rounded-full bg-emerald-500/15 blur-3xl" />
           <div className="flex items-start gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-600 to-fuchsia-600 neon-glow">
-              <Globe2 className="h-6 w-6 text-white" aria-hidden />
+            <div className="relative flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-emerald-500/30 bg-[#04120a] shadow-[0_0_35px_-8px_rgba(16,185,129,0.5)]">
+              <Image
+                src={config.mastershop.logoUrl}
+                alt="Logotipo de MasterShop"
+                width={40}
+                height={40}
+                className="h-9 w-9 rounded-lg"
+              />
             </div>
             <div>
               <p className="font-display text-base font-bold text-white sm:text-lg">
-                Una plataforma <span className="text-gradient">colombiana</span> para operar dropshipping
+                Una plataforma que <span className="text-gradient">opera</span> — con base en Colombia
               </p>
               <p className="mt-2 text-sm leading-relaxed font-light text-zinc-400">
                 MasterShop reúne en un solo lugar las piezas del modelo: catálogo de productos,
-                proveedores, pedidos y despachos, para que gestiones tu negocio digital sin saltar
-                entre diez herramientas distintas.
+                proveedores, pedidos y despachos. Es una plataforma en operación, con base en
+                Colombia y apertura reciente en Perú y Ecuador, para que gestiones tu negocio
+                digital sin saltar entre diez herramientas distintas.
               </p>
             </div>
           </div>
         </div>
       </StageSection>
 
-      {/* Mockup del panel */}
+      {/* Captura real del panel */}
       <StageSection>
         <div className="mb-4 flex items-center justify-center gap-3">
-          <span className="h-px w-10 bg-gradient-to-r from-transparent to-purple-500/60" />
+          <span className="h-px w-10 bg-gradient-to-r from-transparent to-emerald-500/60" />
           <p className="font-display text-[10px] font-bold tracking-[0.28em] text-zinc-500 uppercase">
             Así se ve operar desde un panel
           </p>
-          <span className="h-px w-10 bg-gradient-to-l from-transparent to-purple-500/60" />
+          <span className="h-px w-10 bg-gradient-to-l from-transparent to-emerald-500/60" />
         </div>
-        <MasterShopPanel />
+        <MasterShopPanel config={config} />
       </StageSection>
 
       {/* Funciones */}
@@ -59,7 +67,7 @@ export function StageMasterShop({ config, stageIndex }: StageProps) {
               className="glass-card glass-card-hover p-4"
             >
               <div className="mb-3 flex items-center gap-2.5">
-                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-purple-500/15 font-mono text-[10px] font-bold text-purple-300">
+                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/15 font-mono text-[10px] font-bold text-emerald-300">
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <h3 className="font-display text-[13px] font-bold text-white">{f.title}</h3>

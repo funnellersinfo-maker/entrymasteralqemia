@@ -86,9 +86,14 @@
   }
   html {
     scroll-behavior: smooth;
+    /* Fondo oscuro también en el documento: nunca aparece una barra blanca
+       al hacer zoom o desplazarse horizontalmente. */
+    background-color: #0a0614;
+    overflow-x: clip;
   }
   body {
     @apply bg-background text-foreground;
+    overflow-x: clip;
     font-feature-settings: "ss01", "cv11";
   }
   ::selection {

@@ -2,7 +2,9 @@
 
 import { useCallback, useEffect, useRef, useState } from "react"
 import { AnimatePresence, motion } from "framer-motion"
+import { Settings } from "lucide-react"
 import { DEFAULT_CONFIG, type SiteConfig } from "@/lib/content"
+import { loadSiteConfig } from "@/lib/store"
 import { STAGES, TOTAL_STAGES } from "@/lib/stages"
 import { useProgress } from "@/lib/progress"
 import { BackgroundFX } from "./BackgroundFX"
@@ -72,20 +74,10 @@ export function ExperienceApp() {
   const { progress, hydrated, goTo, markCompleted, unlockBadge, markQuizDone, setLeadSent, reset } =
     useProgress()
 
-  // Cargar configuración (DB + valores por defecto)
+  // Cargar configuración (valores guardados en este navegador + valores por defecto)
   useEffect(() => {
-    let cancelled = false
-    fetch("/api/config")
-      .then((r) => r.json())
-      .then((data) => {
-        if (!cancelled && data?.config) setConfig(data.config as SiteConfig)
-      })
-      .catch(() => {
-        if (!cancelled) setConfig(DEFAULT_CONFIG)
-      })
-    return () => {
-      cancelled = true
-    }
+    const t = setTimeout(() => setConfig(loadSiteConfig()), 0)
+    return () => clearTimeout(t)
   }, [])
 
   // Muestra el toast de insignia desbloqueada
@@ -169,7 +161,6 @@ export function ExperienceApp() {
         xp={progress.xp}
         badgeCount={progress.badges.length}
         config={config ?? DEFAULT_CONFIG}
-        onOpenAdmin={() => setAdminOpen(true)}
       />
 
       <BadgeToast badge={toast} />
@@ -209,10 +200,22 @@ export function ExperienceApp() {
       >
         <p className="text-center text-[10px] leading-relaxed text-zinc-600">
           {config?.brand.name ?? "MASTERSHOP"} {config?.brand.program ?? "E-COMMERCE"} · Mentoría
-          presentada por {config?.brand.presenter ?? "Alejo"} · Experiencia educativa interactiva.
+          presentada por {config?.brand.presenter ?? "Alejo"} · Una experiencia de{" "}
+          {config?.mentor.academyName ?? "ALQEMIA"}.
           <br className="hidden sm:block" /> Los ejemplos y cifras son ilustrativos y no garantizan
           resultados.
         </p>
+        {/* Tuerca discreta — acceso al panel de administración (siempre al final del inicio) */}
+        <div className="mt-3 flex justify-center">
+          <button
+            onClick={() => setAdminOpen(true)}
+            aria-label="Abrir panel de administración"
+            title="Panel de administración"
+            className="rounded-md p-1.5 text-zinc-700 transition-colors hover:text-purple-300 focus-visible:outline-2 focus-visible:outline-purple-400"
+          >
+            <Settings className="h-3.5 w-3.5" aria-hidden />
+          </button>
+        </div>
       </footer>
 
       {config !== null && stageIndex > 0 && (

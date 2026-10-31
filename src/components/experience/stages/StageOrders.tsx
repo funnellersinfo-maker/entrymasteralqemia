@@ -4,7 +4,7 @@ import { useState } from "react"
 import { AnimatePresence, motion } from "framer-motion"
 import {
   BadgeCheck,
-  Bell,
+  Bot,
   CheckCheck,
   ClipboardList,
   Package,
@@ -26,18 +26,18 @@ const TIMELINE = [
     tone: "text-purple-300 border-purple-500/40 bg-purple-500/10",
   },
   {
-    icon: Bell,
-    title: "Tu negocio recibe la información",
+    icon: Bot,
+    title: "La orden se capta y carga sola",
     detail:
-      "Llega la notificación del pedido: qué producto se vendió, a qué dirección entregar y el valor cobrado.",
-    status: "Información registrada",
-    tone: "text-violet-300 border-violet-500/40 bg-violet-500/10",
+      "Sellerchat capta la orden y la carga automáticamente con la integración directa a MasterShop: qué producto se vendió, a qué dirección entregar y el valor cobrado. Sin pasar datos a mano.",
+    status: "Carga automática",
+    tone: "text-cyan-300 border-cyan-500/40 bg-cyan-500/10",
   },
   {
     icon: ClipboardList,
-    title: "Gestionas el pedido con el proveedor",
+    title: "MasterShop toma el pedido",
     detail:
-      "Desde la plataforma coordinas el pedido con el proveedor para que prepare el producto, según sus condiciones.",
+      "MasterShop recibe el pedido y continúa el flujo con el proveedor para que prepare el producto, según sus condiciones.",
     status: "En gestión",
     tone: "text-fuchsia-300 border-fuchsia-500/40 bg-fuchsia-500/10",
   },

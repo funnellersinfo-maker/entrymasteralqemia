@@ -52,3 +52,20 @@ prompt
 server.log
 # Skills directory
 /skills/
+# entorno local / secretos
+.env
+.env.*
+
+# base de datos local y datos de leads
+/db/
+*.db
+
+# archivos subidos sin procesar
+/upload/
+
+# builds y despliegue
+/out/
+.wrangler/
+
+# estado del servidor de desarrollo
+.zscripts/

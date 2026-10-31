@@ -1,45 +1,39 @@
 "use client"
 
+import Image from "next/image"
+import { useEffect, useRef } from "react"
 import { motion } from "framer-motion"
-import {
-  Bell,
-  CircleCheck,
-  Home,
-  LayoutGrid,
-  Package,
-  Search,
-  Settings,
-  Truck,
-  Users,
-  Warehouse,
-} from "lucide-react"
+import { MoveHorizontal, TrendingUp } from "lucide-react"
+import type { SiteConfig } from "@/lib/content"
 import { cn } from "@/lib/utils"
 
-const NAV = [
-  { icon: Home, label: "Inicio" },
-  { icon: LayoutGrid, label: "Catálogo" },
-  { icon: Warehouse, label: "Proveedores" },
-  { icon: Package, label: "Pedidos" },
-  { icon: Truck, label: "Envíos" },
-  { icon: Users, label: "Clientes" },
-  { icon: Settings, label: "Ajustes" },
-] as const
+/**
+ * Captura REAL del panel de MasterShop (rotada a horizontal).
+ * En móvil: se inicia mostrando la zona de los montos (derecha de la
+ * captura) y se puede deslizar para explorar todo el panel.
+ */
+export function MasterShopPanel({ config }: { config: SiteConfig }) {
+  const scroller = useRef<HTMLDivElement>(null)
 
-const STATS = [
-  { label: "Ventas del mes", value: "—" },
-  { label: "Pedidos activos", value: "—" },
-  { label: "Entregas", value: "—" },
-] as const
+  // En móvil, al montar, posiciona el scroll al extremo derecho
+  // (la zona de los montos altos: Ventas y Utilidades).
+  useEffect(() => {
+    const el = scroller.current
+    if (!el) return
+    const showAmounts = () => {
+      if (el.scrollWidth > el.clientWidth) el.scrollLeft = el.scrollWidth
+    }
+    showAmounts()
+    // Reintenta tras la carga de la imagen
+    const t = setTimeout(showAmounts, 400)
+    return () => clearTimeout(t)
+  }, [])
 
-const PRODUCTS = [
-  { name: "Producto A", price: "—", status: "Publicado", tone: "text-emerald-300 border-emerald-500/30 bg-emerald-500/10" },
-  { name: "Producto B", price: "—", status: "En revisión", tone: "text-amber-300 border-amber-500/30 bg-amber-500/10" },
-  { name: "Producto C", price: "—", status: "Publicado", tone: "text-emerald-300 border-emerald-500/30 bg-emerald-500/10" },
-  { name: "Producto D", price: "—", status: "Agotado", tone: "text-rose-300 border-rose-500/30 bg-rose-500/10" },
-] as const
+  const scrollToAmounts = () => {
+    const el = scroller.current
+    if (el) el.scrollTo({ left: el.scrollWidth, behavior: "smooth" })
+  }
 
-/** Mockup ilustrativo del panel de administración de MasterShop */
-export function MasterShopPanel() {
   return (
     <motion.div
       initial={{ opacity: 0, y: 30, rotateX: 6 }}
@@ -47,99 +41,116 @@ export function MasterShopPanel() {
       transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
       className="relative"
     >
-      <div className="absolute -inset-8 rounded-[2rem] bg-purple-600/20 blur-3xl" aria-hidden />
+      <div className="absolute -inset-8 rounded-[2rem] bg-emerald-500/10 blur-3xl" aria-hidden />
+
       {/* Marco del navegador */}
-      <div className="relative overflow-hidden rounded-2xl border border-purple-500/30 bg-[#0d0819]/95 shadow-[0_20px_70px_-20px_rgba(126,34,206,0.45)]">
+      <div className="relative overflow-hidden rounded-2xl border border-emerald-500/25 bg-[#06090c]/95 shadow-[0_20px_70px_-20px_rgba(16,185,129,0.35)]">
         {/* Barra del navegador */}
         <div className="flex items-center gap-2 border-b border-white/[0.07] bg-white/[0.03] px-4 py-2.5">
           <span className="h-2.5 w-2.5 rounded-full bg-rose-500/70" />
           <span className="h-2.5 w-2.5 rounded-full bg-amber-500/70" />
           <span className="h-2.5 w-2.5 rounded-full bg-emerald-500/70" />
-          <div className="ml-3 flex flex-1 items-center gap-2 rounded-md bg-white/[0.05] px-3 py-1">
-            <Search className="h-3 w-3 text-zinc-600" aria-hidden />
-            <span className="font-mono text-[10px] text-zinc-500">panel.tutienda.co/admin</span>
+          <div className="ml-3 flex flex-1 items-center gap-2 overflow-hidden rounded-md bg-white/[0.05] px-3 py-1">
+            <Image
+              src={config.mastershop.logoUrl}
+              alt=""
+              width={12}
+              height={12}
+              className="h-3 w-3 rounded-sm"
+            />
+            <span className="truncate font-mono text-[10px] text-zinc-500">
+              panel.mastershop.co · {config.mastershop.panelCaption.toLowerCase()}
+            </span>
+          </div>
+          <span className="hidden rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[9px] font-bold text-emerald-300 uppercase sm:inline">
+            Vista real
+          </span>
+        </div>
+
+        {/* Captura real (horizontal) — deslizable en móvil */}
+        <div
+          ref={scroller}
+          className="mastershop-panel-scroller custom-scrollbar overflow-x-auto overscroll-x-contain"
+          role="region"
+          aria-label="Captura del panel de MasterShop, deslizable horizontalmente"
+        >
+          <div className="relative min-w-full sm:w-full">
+            <Image
+              src={config.mastershop.panelImageUrl}
+              alt="Panel de administración de MasterShop con ventas y utilidades registradas"
+              width={1600}
+              height={800}
+              priority
+              className="block h-auto w-full min-w-[760px] select-none sm:min-w-0"
+              draggable={false}
+            />
+            {/* Destello de escaneo decorativo */}
+            <div
+              className="pointer-events-none absolute inset-y-0 w-1/4 animate-scan bg-gradient-to-r from-transparent via-emerald-400/10 to-transparent"
+              aria-hidden
+            />
           </div>
         </div>
 
-        <div className="grid grid-cols-[auto_1fr] sm:grid-cols-[9.5rem_1fr]">
-          {/* Sidebar */}
-          <nav className="border-r border-white/[0.07] p-2 sm:p-3" aria-label="Secciones del panel">
-            <div className="mb-3 hidden items-center gap-2 px-2 pt-1 sm:flex">
-              <span className="flex h-6 w-6 items-center justify-center rounded-md bg-gradient-to-br from-purple-600 to-fuchsia-600 font-display text-[8px] font-bold text-white">
-                MS
-              </span>
-              <span className="font-display text-[10px] font-bold text-white">MasterShop</span>
-            </div>
-            {NAV.map((item, i) => (
-              <div
-                key={item.label}
-                className={cn(
-                  "mb-0.5 flex items-center gap-2 rounded-lg px-2 py-1.5 sm:px-2.5",
-                  i === 1 && "bg-purple-500/20 text-purple-200",
-                  i !== 1 && "text-zinc-500"
-                )}
-              >
-                <item.icon className="h-3.5 w-3.5 shrink-0" aria-hidden />
-                <span className="hidden text-[11px] font-medium sm:inline">{item.label}</span>
-              </div>
-            ))}
-          </nav>
-
-          {/* Contenido */}
-          <div className="p-3 sm:p-4">
-            {/* Encabezado */}
-            <div className="mb-3 flex items-center justify-between">
-              <div>
-                <p className="font-display text-xs font-bold text-white sm:text-sm">Catálogo de la tienda</p>
-                <p className="text-[10px] text-zinc-600">Gestión de productos</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <Bell className="h-3.5 w-3.5 text-zinc-500" aria-hidden />
-                <span className="h-6 w-6 rounded-full bg-gradient-to-br from-purple-500 to-fuchsia-600" />
-              </div>
-            </div>
-
-            {/* Estadísticas ilustrativas */}
-            <div className="mb-3 grid grid-cols-3 gap-2">
-              {STATS.map((s) => (
-                <div key={s.label} className="rounded-lg border border-white/[0.07] bg-white/[0.02] p-2.5 sm:p-3">
-                  <p className="truncate text-[8px] leading-tight text-zinc-500 uppercase sm:text-[9px]">{s.label}</p>
-                  <p className="mt-1 font-display text-sm font-bold text-zinc-600 sm:text-base">{s.value}</p>
-                </div>
-              ))}
-            </div>
-
-            {/* Tabla de productos */}
-            <div className="overflow-hidden rounded-lg border border-white/[0.07]">
-              <div className="hidden grid-cols-[1fr_auto_auto] gap-2 bg-white/[0.03] px-3 py-2 text-[9px] font-semibold tracking-wider text-zinc-500 uppercase sm:grid">
-                <span>Producto</span>
-                <span>Precio</span>
-                <span>Estado</span>
-              </div>
-              {PRODUCTS.map((p) => (
-                <div
-                  key={p.name}
-                  className="grid grid-cols-[1fr_auto] items-center gap-2 border-t border-white/[0.05] px-3 py-2 sm:grid-cols-[1fr_auto_auto]"
-                >
-                  <span className="flex items-center gap-2 text-[11px] font-medium text-zinc-300">
-                    <span className="h-6 w-6 shrink-0 rounded-md bg-gradient-to-br from-purple-800/60 to-fuchsia-800/40" />
-                    {p.name}
-                  </span>
-                  <span className="hidden text-[11px] text-zinc-500 sm:block">{p.price}</span>
-                  <span className={cn("rounded-full border px-2 py-0.5 text-[9px] font-semibold", p.tone)}>
-                    {p.status}
-                  </span>
-                </div>
-              ))}
-            </div>
-
-            <p className="mt-3 flex items-center gap-1.5 text-[9px] text-zinc-600">
-              <CircleCheck className="h-3 w-3 text-purple-500/50" aria-hidden />
-              Mockup ilustrativo — la interfaz real corresponde a la plataforma MasterShop
-            </p>
-          </div>
+        {/* Barra inferior: pista de deslizamiento en móvil */}
+        <div className="flex items-center justify-between gap-3 border-t border-white/[0.07] bg-white/[0.02] px-3 py-2 sm:justify-center">
+          <p className="flex items-center gap-1.5 text-[10px] font-light text-zinc-500 sm:hidden">
+            <MoveHorizontal className="h-3.5 w-3.5 text-emerald-400/70" aria-hidden />
+            Desliza para explorar el panel
+          </p>
+          <button
+            onClick={scrollToAmounts}
+            className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-[10px] font-bold text-emerald-300 transition-colors hover:bg-emerald-500/20 sm:hidden"
+          >
+            <TrendingUp className="h-3 w-3" aria-hidden />
+            Ver montos
+          </button>
+          <p className="hidden text-[10px] font-light text-zinc-500 sm:block">
+            {config.mastershop.panelCaption} — vista de la operación desde un solo lugar.
+          </p>
         </div>
       </div>
+
+      {/* Montos destacados — siempre legibles en cualquier pantalla */}
+      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+        {config.mastershop.panelStats.map((stat, i) => (
+          <motion.div
+            key={stat.label}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.35 + i * 0.12 }}
+            className={cn(
+              "relative overflow-hidden rounded-2xl border p-4 sm:p-5",
+              i === 0
+                ? "border-emerald-500/30 bg-gradient-to-br from-emerald-950/50 via-[#08110d] to-[#0a0614]"
+                : "border-purple-500/30 bg-gradient-to-br from-purple-950/40 via-[#100a1e] to-[#0a0614]"
+            )}
+          >
+            <div
+              className={cn(
+                "pointer-events-none absolute -top-10 -right-10 h-28 w-28 rounded-full blur-3xl",
+                i === 0 ? "bg-emerald-500/15" : "bg-purple-600/20"
+              )}
+              aria-hidden
+            />
+            <p className="text-[10px] font-semibold tracking-[0.14em] text-zinc-500 uppercase">
+              {stat.label}
+            </p>
+            <p
+              className={cn(
+                "mt-1.5 font-display text-lg font-extrabold tracking-tight tabular-nums break-words sm:text-2xl",
+                i === 0 ? "text-emerald-300" : "text-purple-200"
+              )}
+            >
+              {stat.value}
+            </p>
+          </motion.div>
+        ))}
+      </div>
+
+      <p className="mt-3 text-center text-[10px] leading-relaxed font-light text-zinc-600">
+        {config.mastershop.panelNote}
+      </p>
     </motion.div>
   )
 }

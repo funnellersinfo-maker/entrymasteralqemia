@@ -36,15 +36,23 @@ export interface SiteConfig {
     whatsappLabel: string
     calendarUrl: string
     externalFormUrl: string
+    email: string
   }
   mentor: {
     name: string
     role: string
+    founderTitle: string
+    years: string
+    yearsLabel: string
     bio: string
     photoUrl: string
     photoNote: string
     highlights: string[]
     extraNote: string
+    academyName: string
+    academyLogoUrl: string
+    academyTagline: string
+    academyDescription: string
   }
   mentorship: {
     title: string
@@ -53,6 +61,11 @@ export interface SiteConfig {
     items: MentorshipItem[]
   }
   mastershop: {
+    logoUrl: string
+    panelImageUrl: string
+    panelCaption: string
+    panelStats: { label: string; value: string }[]
+    panelNote: string
     features: { title: string; description: string }[]
     disclaimer: string
   }
@@ -88,23 +101,32 @@ export const DEFAULT_CONFIG: SiteConfig = {
     whatsappLabel: "Escríbenos por WhatsApp",
     calendarUrl: "",
     externalFormUrl: "",
+    email: "funnellers.info@gmail.com",
   },
   mentor: {
     name: "Alejo",
     role: "Mentor de E-Commerce & Marketing Digital",
-    bio:
-      "Acompaño a emprendedores a construir y operar tiendas online con el modelo de dropshipping. Mi enfoque combina marketing digital, publicidad, contenido y automatización para montar negocios digitales con estructura clara y medible.",
-    photoUrl: "/images/mentor-avatar.png",
-    photoNote: "Imagen ilustrativa — aquí va tu fotografía real",
+    founderTitle: "Fundador de ALQEMIA",
+    years: "9",
+    yearsLabel: "años acompañando negocios y formando emprendedores desde cero",
+    bio: "Llevo 9 años acompañando negocios y formando emprendedores desde cero. Mi experiencia práctica está en comercio electrónico, dropshipping, marketing digital, publicidad y automatización — y la pongo al servicio de tu proyecto, paso a paso, sin humo: con estructura clara, procesos y decisiones basadas en números.",
+    photoUrl: "/images/alejo.jpg",
+    photoNote: "",
     highlights: [
-      "Marketing digital",
       "E-commerce",
       "Dropshipping",
-      "Publicidad digital",
+      "Marketing digital",
+      "Publicidad (Ads)",
       "Automatización",
+      "Formación de emprendedores",
     ],
     extraNote:
-      "En esta sección se incorporarán la trayectoria y los casos reales cuando estén disponibles.",
+      "Aquí no encontrarás testimonios inventados ni promesas de resultados. Mi compromiso es mostrarte el camino real, con la práctica de quien opera este negocio todos los días.",
+    academyName: "ALQEMIA",
+    academyLogoUrl: "/images/alqemia-logo.jpg",
+    academyTagline: "Ecosistema de Negocios Digitales",
+    academyDescription:
+      "ALQEMIA es el ecosistema desde el cual impulsamos la formación, el emprendimiento y el crecimiento de negocios digitales: un espacio para aprender, montar y escalar con acompañamiento real.",
   },
   mentorship: {
     title: "¿Qué incluye la mentoría?",
@@ -188,6 +210,15 @@ export const DEFAULT_CONFIG: SiteConfig = {
     ],
   },
   mastershop: {
+    logoUrl: "/images/mastershop-logo.png",
+    panelImageUrl: "/images/mastershop-panel.jpg",
+    panelCaption: "Captura real del panel de MasterShop",
+    panelStats: [
+      { label: "Ventas registradas en el panel", value: "$ 307.771.012,94" },
+      { label: "Utilidades registradas en el panel", value: "$ 214.838.216,94" },
+    ],
+    panelNote:
+      "Cifras tomadas de una cuenta real de MasterShop (captura de pantalla). Se muestran como referencia de cómo se ve la operación desde el panel — no constituyen promesa ni garantía de resultados.",
     features: [
       {
         title: "Catálogo de productos",
@@ -215,7 +246,7 @@ export const DEFAULT_CONFIG: SiteConfig = {
       },
     ],
     disclaimer:
-      "Mockup ilustrativo. La disponibilidad específica de funciones, integraciones y proveedores depende de las condiciones actuales de MasterShop.",
+      "Captura real de la plataforma MasterShop. La disponibilidad específica de funciones, integraciones y proveedores depende de las condiciones actuales de MasterShop.",
   },
   cta: {
     title: "TU TIENDA ONLINE PUEDE COMENZAR HOY.",

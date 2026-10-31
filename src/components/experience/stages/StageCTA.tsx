@@ -7,6 +7,7 @@ import {
   CheckCircle2,
   ChevronDown,
   Loader2,
+  Mail,
   MessageCircle,
   Rocket,
   Sparkles,
@@ -18,6 +19,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import type { StageProps } from "../ExperienceApp"
 import { getStageText, StageHeader } from "../shared"
+import { BUDGET_RANGES, saveLead, type LeadRecord } from "@/lib/store"
 import { cn } from "@/lib/utils"
 
 const EXPERIENCE_OPTIONS = [
@@ -40,6 +42,7 @@ type FormState = {
   email: string
   experience: string
   goal: string
+  budget: string
   hasMasterShopAccount: string
 }
 
@@ -49,7 +52,27 @@ const INITIAL_FORM: FormState = {
   email: "",
   experience: "",
   goal: "",
+  budget: "",
   hasMasterShopAccount: "",
+}
+
+function buildLeadMessage(lead: LeadRecord): string {
+  return [
+    "Hola Alejo 👋 Quiero mi tienda MasterShop.",
+    "",
+    `• Nombre: ${lead.name}`,
+    `• WhatsApp: ${lead.whatsapp}`,
+    `• Correo: ${lead.email}`,
+    `• Experiencia: ${lead.experience}`,
+    `• Objetivo: ${lead.goal}`,
+    `• Inversión inicial disponible: ${lead.budget}`,
+    `• Cuenta MasterShop: ${lead.hasMasterShopAccount ? "Sí" : "No"}`,
+  ].join("\n")
+}
+
+function withTextParam(url: string, text: string): string {
+  const sep = url.includes("?") ? "&" : "?"
+  return `${url}${sep}text=${encodeURIComponent(text)}`
 }
 
 export function StageCTA({
@@ -63,7 +86,6 @@ export function StageCTA({
   const [form, setForm] = useState<FormState>(INITIAL_FORM)
   const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({})
   const [submitting, setSubmitting] = useState(false)
-  const [serverError, setServerError] = useState<string | null>(null)
 
   const openForm = (presetGoal?: string) => {
     setFormOpen(true)
@@ -81,37 +103,60 @@ export function StageCTA({
     if (!form.experience) e.experience = "Selecciona una opción"
     if (!form.goal) e.goal = "Selecciona tu objetivo"
     if (!form.hasMasterShopAccount) e.hasMasterShopAccount = "Selecciona una opción"
+    // La inversión inicial es opcional: no cohibe a nadie.
     setErrors(e)
     return Object.keys(e).length === 0
   }
 
   const submit = async (ev: React.FormEvent) => {
     ev.preventDefault()
-    setServerError(null)
     if (!validate()) return
     setSubmitting(true)
     try {
-      const res = await fetch("/api/leads", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: form.name.trim(),
-          whatsapp: form.whatsapp.trim(),
-          email: form.email.trim(),
-          experience: form.experience,
-          goal: form.goal,
-          hasMasterShopAccount: form.hasMasterShopAccount === "si",
-        }),
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data?.error ?? "Error al enviar")
+      const lead: LeadRecord = {
+        id: typeof crypto !== "undefined" && "randomUUID" in crypto
+          ? crypto.randomUUID()
+          : `l-${Date.now()}`,
+        name: form.name.trim(),
+        whatsapp: form.whatsapp.trim(),
+        email: form.email.trim(),
+        experience: form.experience,
+        goal: form.goal,
+        budget: form.budget || "No especificado",
+        hasMasterShopAccount: form.hasMasterShopAccount === "si",
+        source: "experiencia-web",
+        createdAt: new Date().toISOString(),
+      }
+      // 1) Registro local (visible en el panel de administración)
+      saveLead(lead)
+      // 2) Entrega por WhatsApp (si hay número configurado)
+      const message = buildLeadMessage(lead)
+      if (config.contact.whatsappUrl) {
+        try {
+          window.open(withTextParam(config.contact.whatsappUrl, message), "_blank", "noopener,noreferrer")
+        } catch {
+          /* el navegador lo bloqueó — quedan los botones de la pantalla de éxito */
+        }
+      }
       markLeadSent()
-    } catch (err) {
-      setServerError(err instanceof Error ? err.message : "No se pudo enviar la solicitud")
     } finally {
       setSubmitting(false)
     }
   }
+
+  const leadWaMessage = () =>
+    buildLeadMessage({
+      id: "",
+      name: form.name.trim() || "—",
+      whatsapp: form.whatsapp.trim() || "—",
+      email: form.email.trim() || "—",
+      experience: form.experience || "—",
+      goal: form.goal || "—",
+      budget: form.budget || "No especificado",
+      hasMasterShopAccount: form.hasMasterShopAccount === "si",
+      source: "experiencia-web",
+      createdAt: new Date().toISOString(),
+    })
 
   return (
     <div>
@@ -140,21 +185,35 @@ export function StageCTA({
           <p className="mt-3 text-sm leading-relaxed font-light text-zinc-400">
             {config.cta.successText}
           </p>
-          {config.contact.whatsappUrl ? (
-            <a
-              href={config.contact.whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-6 inline-flex min-h-12 items-center gap-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-3 font-display text-sm font-bold text-white transition-transform hover:scale-[1.03]"
-            >
-              <MessageCircle className="h-4.5 w-4.5" aria-hidden />
-              {config.contact.whatsappLabel}
-            </a>
-          ) : (
-            <p className="mt-5 inline-flex rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-[11px] font-light text-zinc-500">
-              Te contactaremos por los datos que dejaste.
-            </p>
-          )}
+          <div className="mt-6 flex flex-col items-center justify-center gap-2.5 sm:flex-row">
+            {config.contact.whatsappUrl ? (
+              <a
+                href={withTextParam(config.contact.whatsappUrl, leadWaMessage())}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex min-h-12 items-center gap-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-3 font-display text-sm font-bold text-white transition-transform hover:scale-[1.03]"
+              >
+                <MessageCircle className="h-4.5 w-4.5" aria-hidden />
+                {config.contact.whatsappLabel}
+              </a>
+            ) : null}
+            {config.contact.email ? (
+              <a
+                href={`mailto:${config.contact.email}?subject=${encodeURIComponent(
+                  "Solicitud tienda MasterShop"
+                )}&body=${encodeURIComponent(leadWaMessage())}`}
+                className="inline-flex min-h-12 items-center gap-2.5 rounded-xl border border-white/15 bg-white/[0.04] px-6 py-3 font-display text-sm font-bold text-zinc-200 transition-all hover:border-purple-500/40 hover:text-white"
+              >
+                <Mail className="h-4.5 w-4.5" aria-hidden />
+                Enviar por correo
+              </a>
+            ) : null}
+            {!config.contact.whatsappUrl && !config.contact.email ? (
+              <p className="mt-1 inline-flex rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-[11px] font-light text-zinc-500">
+                Te contactaremos por los datos que dejaste.
+              </p>
+            ) : null}
+          </div>
         </motion.div>
       ) : (
         <>
@@ -301,13 +360,17 @@ export function StageCTA({
                     >
                       <SelectTrigger
                         aria-invalid={Boolean(errors.experience)}
-                        className="min-h-11 w-full border-white/15 bg-white/[0.04]"
+                        className="min-h-11 w-full min-w-0 border-white/15 bg-white/[0.04]"
                       >
                         <SelectValue placeholder="Selecciona una opción" />
                       </SelectTrigger>
-                      <SelectContent className="border-purple-500/30 bg-[#140d26]">
+                      <SelectContent className="max-w-[calc(100vw-2.5rem)] border-purple-500/30 bg-[#140d26]">
                         {EXPERIENCE_OPTIONS.map((o) => (
-                          <SelectItem key={o} value={o} className="focus:bg-purple-500/25">
+                          <SelectItem
+                            key={o}
+                            value={o}
+                            className="whitespace-normal break-words focus:bg-purple-500/25"
+                          >
                             {o}
                           </SelectItem>
                         ))}
@@ -318,13 +381,17 @@ export function StageCTA({
                     <Select value={form.goal} onValueChange={(v) => setForm({ ...form, goal: v })}>
                       <SelectTrigger
                         aria-invalid={Boolean(errors.goal)}
-                        className="min-h-11 w-full border-white/15 bg-white/[0.04]"
+                        className="min-h-11 w-full min-w-0 border-white/15 bg-white/[0.04]"
                       >
                         <SelectValue placeholder="Selecciona tu objetivo" />
                       </SelectTrigger>
-                      <SelectContent className="border-purple-500/30 bg-[#140d26]">
+                      <SelectContent className="max-w-[calc(100vw-2.5rem)] border-purple-500/30 bg-[#140d26]">
                         {GOAL_OPTIONS.map((o) => (
-                          <SelectItem key={o} value={o} className="focus:bg-purple-500/25">
+                          <SelectItem
+                            key={o}
+                            value={o}
+                            className="whitespace-normal break-words focus:bg-purple-500/25"
+                          >
                             {o}
                           </SelectItem>
                         ))}
@@ -332,11 +399,39 @@ export function StageCTA({
                     </Select>
                   </Field>
 
-                  {serverError && (
-                    <p className="rounded-lg border border-rose-500/40 bg-rose-500/10 px-4 py-2.5 text-xs text-rose-300 sm:col-span-2">
-                      {serverError}
-                    </p>
-                  )}
+                  {/* Inversión inicial disponible */}
+                  <div className="sm:col-span-2">
+                    <Field label="¿Cuánto podrías invertir en tu negocio al inicio?">
+                      <RadioGroup
+                        value={form.budget}
+                        onValueChange={(v) => setForm({ ...form, budget: v })}
+                        className="grid gap-2 sm:grid-cols-2"
+                      >
+                        {BUDGET_RANGES.map((range) => {
+                          const selected = form.budget === range
+                          return (
+                            <label
+                              key={range}
+                              className={cn(
+                                "flex min-h-11 cursor-pointer items-center gap-2.5 rounded-lg border px-3 py-2.5 text-[13px] font-light transition-colors",
+                                selected
+                                  ? "border-purple-500/60 bg-purple-500/10 text-white"
+                                  : "border-white/10 bg-white/[0.03] text-zinc-300 hover:border-purple-500/30"
+                              )}
+                            >
+                              <RadioGroupItem value={range} id={`budget-${range}`} />
+                              {range}
+                            </label>
+                          )
+                        })}
+                      </RadioGroup>
+                      <p className="mt-2 text-[10px] leading-relaxed font-light text-zinc-600">
+                        Pregunta orientativa — no te compromete a nada. La inversión de referencia
+                        para comenzar es de $150 USD, y tu respuesta nos ayuda a orientarte según tu
+                        punto de partida.
+                      </p>
+                    </Field>
+                  </div>
 
                   <div className="sm:col-span-2">
                     <motion.button
@@ -391,7 +486,7 @@ function Field({
   children: React.ReactNode
 }) {
   return (
-    <div className="space-y-1.5">
+    <div className="min-w-0 space-y-1.5">
       <Label className="text-xs font-medium text-zinc-400">
         {label}
         {required ? <span className="ml-1 text-fuchsia-400">*</span> : null}
