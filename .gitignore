@@ -69,3 +69,9 @@ server.log
 
 # estado del servidor de desarrollo
 .zscripts/
+
+# export build temporal (no rompe el dev server)
+/.build-export/
+
+# artefactos internos del entorno
+/tool-results/

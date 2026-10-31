@@ -354,7 +354,7 @@ export function AdminPanel({
                             Experiencia: {lead.experience} · Objetivo: {lead.goal}
                           </p>
                           <p className="mt-0.5 text-zinc-500">
-                            Inversión inicial:{" "}
+                            País: <span className="font-semibold text-purple-300">{lead.country || "—"}</span> · Inversión inicial:{" "}
                             <span className="font-semibold text-purple-300">{lead.budget}</span>
                           </p>
                           <p className="mt-0.5 text-zinc-600">
@@ -405,8 +405,8 @@ export function AdminPanel({
               {/* CONTACTO */}
               <TabsContent value="contacto" className="space-y-4">
                 <Group title="Enlaces (deja vacío para ocultar)">
-                  <FieldRow label="URL de WhatsApp (wa.me/…)">
-                    <Input value={draft.contact.whatsappUrl} onChange={(e) => set("contact", { whatsappUrl: e.target.value })} placeholder="https://wa.me/57…" className="bg-white/[0.04]" />
+                  <FieldRow label="URL de WhatsApp (api.whatsapp.com/send?phone=…)">
+                    <Input value={draft.contact.whatsappUrl} onChange={(e) => set("contact", { whatsappUrl: e.target.value })} placeholder="https://api.whatsapp.com/send?phone=57…" className="bg-white/[0.04]" />
                   </FieldRow>
                   <FieldRow label="Etiqueta del botón de WhatsApp">
                     <Input value={draft.contact.whatsappLabel} onChange={(e) => set("contact", { whatsappLabel: e.target.value })} className="bg-white/[0.04]" />
@@ -414,13 +414,11 @@ export function AdminPanel({
                   <FieldRow label="URL de agenda (asesorías)">
                     <Input value={draft.contact.calendarUrl} onChange={(e) => set("contact", { calendarUrl: e.target.value })} placeholder="https://calendly.com/…" className="bg-white/[0.04]" />
                   </FieldRow>
-                  <FieldRow label="Correo de contacto">
-                    <Input value={draft.contact.email} onChange={(e) => set("contact", { email: e.target.value })} placeholder="correo@ejemplo.com" className="bg-white/[0.04]" />
-                  </FieldRow>
                 </Group>
                 <p className="text-[10px] leading-relaxed font-light text-zinc-600">
-                  Con el WhatsApp configurado, cada solicitud del formulario final se abre también
-                  como mensaje listo para enviar con todos los datos del interesado.
+                  Con el WhatsApp configurado, cada solicitud del formulario final abre un mensaje
+                  listo para enviar a tu número, con el nombre, el rango de inversión y el país del
+                  interesado. Los datos completos quedan además en la pestaña Leads.
                 </p>
               </TabsContent>
 

@@ -32,11 +32,11 @@ export interface SiteConfig {
     imageUrl: string
   }
   contact: {
+    /** Número del mentor: los leads del formulario llegan aquí por WhatsApp */
     whatsappUrl: string
     whatsappLabel: string
     calendarUrl: string
     externalFormUrl: string
-    email: string
   }
   mentor: {
     name: string
@@ -97,11 +97,12 @@ export const DEFAULT_CONFIG: SiteConfig = {
     imageUrl: "/images/hero-holo.png",
   },
   contact: {
-    whatsappUrl: "",
-    whatsappLabel: "Escríbenos por WhatsApp",
+    // ⚠️ Usamos api.whatsapp.com/send (NO wa.me): el redirect de wa.me
+    // re-codifica el parámetro text y destruye los emojis (→ �).
+    whatsappUrl: "https://api.whatsapp.com/send?phone=573112441018",
+    whatsappLabel: "Enviar por WhatsApp",
     calendarUrl: "",
     externalFormUrl: "",
-    email: "funnellers.info@gmail.com",
   },
   mentor: {
     name: "Alejo",
@@ -256,7 +257,7 @@ export const DEFAULT_CONFIG: SiteConfig = {
     secondaryLabel: "QUIERO UNA ASESORÍA PERSONALIZADA",
     successTitle: "¡Solicitud recibida!",
     successText:
-      "Gracias por completar la experiencia. Tu información fue registrada y te contactaremos para dar el siguiente paso con tu tienda MasterShop.",
+      "Tu solicitud quedó registrada. Revisa WhatsApp: el mensaje con tus datos ya está listo — solo presiona enviar y Alejo lo recibirá al instante.",
   },
   stages: {},
 }

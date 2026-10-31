@@ -25,9 +25,9 @@ import { cn } from "@/lib/utils"
 
 const CONVERSATION = [
   { from: "client" as const, text: "¡Hola! Vi el serum facial, ¿tienen disponibilidad?" },
-  { from: "seller" as const, text: "¡Hola! Sí, está disponible. Te cuento: hidrata y da luminosidad desde la primera semana. ¿Te muestro el video de cómo se usa? 🎥" },
+  { from: "seller" as const, text: "¡Hola! Sí, está disponible. Te cuento: hidrata y da luminosidad desde la primera semana. ¿Te muestro el video de cómo se usa? \u{1F3A5}" },
   { from: "client" as const, text: "Sí, y ¿hacen envíos a Medellín? Cra 43 #12-30" },
-  { from: "seller" as const, text: "¡Claro! Entregamos en esa dirección en 2 a 4 días hábiles. Si compras hoy, tu pedido queda despachado mañana. 🚚" },
+  { from: "seller" as const, text: "¡Claro! Entregamos en esa dirección en 2 a 4 días hábiles. Si compras hoy, tu pedido queda despachado mañana. \u{1F69A}" },
   { from: "client" as const, text: "Perfecto, ya pagué." },
   { from: "seller" as const, text: "¡Listo! Recibí tu pedido y ya quedó registrado en el sistema. Te envío el número de guía apenas salga a despacho. ✅" },
 ]

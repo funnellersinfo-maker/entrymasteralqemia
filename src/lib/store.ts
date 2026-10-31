@@ -16,6 +16,8 @@ export interface LeadRecord {
   id: string
   name: string
   whatsapp: string
+  /** País del visitante — auto-detectado por IP (editable en el formulario) */
+  country: string
   email: string
   experience: string
   goal: string
@@ -81,6 +83,7 @@ export function leadsToCsv(leads: LeadRecord[]): string {
     "Nombre",
     "WhatsApp",
     "Correo",
+    "País",
     "Experiencia",
     "Objetivo",
     "Inversion inicial",
@@ -93,6 +96,7 @@ export function leadsToCsv(leads: LeadRecord[]): string {
       l.name,
       l.whatsapp,
       l.email,
+      l.country || "",
       l.experience,
       l.goal,
       l.budget,

@@ -1,13 +1,13 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { AnimatePresence, motion } from "framer-motion"
 import {
   CalendarCheck,
   CheckCircle2,
   ChevronDown,
+  Globe,
   Loader2,
-  Mail,
   MessageCircle,
   Rocket,
   Sparkles,
@@ -19,6 +19,8 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import type { StageProps } from "../ExperienceApp"
 import { getStageText, StageHeader } from "../shared"
+import { DEFAULT_CONFIG } from "@/lib/content"
+import { COUNTRY_OPTIONS, detectCountry } from "@/lib/geo"
 import { BUDGET_RANGES, saveLead, type LeadRecord } from "@/lib/store"
 import { cn } from "@/lib/utils"
 
@@ -39,6 +41,7 @@ const GOAL_OPTIONS = [
 type FormState = {
   name: string
   whatsapp: string
+  country: string
   email: string
   experience: string
   goal: string
@@ -49,6 +52,7 @@ type FormState = {
 const INITIAL_FORM: FormState = {
   name: "",
   whatsapp: "",
+  country: "",
   email: "",
   experience: "",
   goal: "",
@@ -56,17 +60,22 @@ const INITIAL_FORM: FormState = {
   hasMasterShopAccount: "",
 }
 
-function buildLeadMessage(lead: LeadRecord): string {
+/**
+ * Mensaje que le llega al WhatsApp del mentor cuando el visitante envía el
+ * formulario: solo lo esencial (nombre, presupuesto y país), con emojis y
+ * encoding UTF-8 correcto — sin caracteres raros.
+ *
+ * Nota: los emojis van como escapes Unicode (\u{…}) a propósito. Así el
+ * archivo fuente es ASCII puro y ningún paso del build puede dañarlos
+ * (los caracteres de 4 bytes se corrompían en el pipeline → �).
+ */
+function buildLeadMessage(lead: Pick<LeadRecord, "name" | "budget" | "country">): string {
   return [
-    "Hola Alejo 👋 Quiero mi tienda MasterShop.",
+    "\u{1F6D2} *NUEVO LEAD \u2014 TIENDA MASTERSHOP*",
     "",
-    `• Nombre: ${lead.name}`,
-    `• WhatsApp: ${lead.whatsapp}`,
-    `• Correo: ${lead.email}`,
-    `• Experiencia: ${lead.experience}`,
-    `• Objetivo: ${lead.goal}`,
-    `• Inversión inicial disponible: ${lead.budget}`,
-    `• Cuenta MasterShop: ${lead.hasMasterShopAccount ? "Sí" : "No"}`,
+    `\u{1F464} *Nombre:* ${lead.name}`,
+    `\u{1F4B0} *Presupuesto:* ${lead.budget || "Sin definir"}`,
+    `\u{1F30E} *Pa\u00eds:* ${lead.country || "\u2014"}`,
   ].join("\n")
 }
 
@@ -82,10 +91,43 @@ export function StageCTA({
   leadSent,
 }: StageProps) {
   const { kicker } = getStageText(stageIndex, config)
+  // El WhatsApp del mentor nunca queda vacío (aunque exista una configuración
+  // guardada antigua sin URL): la entrega de leads es el corazón del embudo.
+  const mentorWhatsAppUrl = config.contact.whatsappUrl || DEFAULT_CONFIG.contact.whatsappUrl
   const [formOpen, setFormOpen] = useState(false)
   const [form, setForm] = useState<FormState>(INITIAL_FORM)
   const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({})
   const [submitting, setSubmitting] = useState(false)
+  const [countryDetecting, setCountryDetecting] = useState(true)
+  const [detectedCountry, setDetectedCountry] = useState<string | null>(null)
+  const manualCountryRef = useRef(false)
+
+  // Auto-detección de país por IP (una sola vez; nunca pisa la selección manual)
+  useEffect(() => {
+    let cancelled = false
+    detectCountry()
+      .catch(() => null)
+      .then((country) => {
+        if (cancelled) return
+        setCountryDetecting(false)
+        if (!country) return
+        setDetectedCountry(country)
+        if (!manualCountryRef.current) {
+          setForm((f) => (f.country ? f : { ...f, country }))
+        }
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  // Si el país detectado no está en la lista, se agrega dinámicamente
+  const countryOptions = useMemo(() => {
+    if (detectedCountry && detectedCountry !== "Otro" && !COUNTRY_OPTIONS.includes(detectedCountry)) {
+      return [detectedCountry, ...COUNTRY_OPTIONS]
+    }
+    return COUNTRY_OPTIONS
+  }, [detectedCountry])
 
   const openForm = (presetGoal?: string) => {
     setFormOpen(true)
@@ -99,6 +141,7 @@ export function StageCTA({
     const e: Partial<Record<keyof FormState, string>> = {}
     if (form.name.trim().length < 2) e.name = "Escribe tu nombre"
     if (!/^[+\d][\d\s().-]{6,19}$/.test(form.whatsapp.trim())) e.whatsapp = "Escribe un WhatsApp válido"
+    if (!form.country.trim()) e.country = "Selecciona tu país"
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(form.email.trim())) e.email = "Escribe un correo válido"
     if (!form.experience) e.experience = "Selecciona una opción"
     if (!form.goal) e.goal = "Selecciona tu objetivo"
@@ -119,6 +162,7 @@ export function StageCTA({
           : `l-${Date.now()}`,
         name: form.name.trim(),
         whatsapp: form.whatsapp.trim(),
+        country: form.country.trim(),
         email: form.email.trim(),
         experience: form.experience,
         goal: form.goal,
@@ -129,11 +173,12 @@ export function StageCTA({
       }
       // 1) Registro local (visible en el panel de administración)
       saveLead(lead)
-      // 2) Entrega por WhatsApp (si hay número configurado)
+      // 2) Notificación al WhatsApp del mentor: se abre el chat listo
+      //    para enviar — el mensaje llega desde el número del visitante.
       const message = buildLeadMessage(lead)
-      if (config.contact.whatsappUrl) {
+      if (mentorWhatsAppUrl) {
         try {
-          window.open(withTextParam(config.contact.whatsappUrl, message), "_blank", "noopener,noreferrer")
+          window.open(withTextParam(mentorWhatsAppUrl, message), "_blank", "noopener,noreferrer")
         } catch {
           /* el navegador lo bloqueó — quedan los botones de la pantalla de éxito */
         }
@@ -146,16 +191,9 @@ export function StageCTA({
 
   const leadWaMessage = () =>
     buildLeadMessage({
-      id: "",
       name: form.name.trim() || "—",
-      whatsapp: form.whatsapp.trim() || "—",
-      email: form.email.trim() || "—",
-      experience: form.experience || "—",
-      goal: form.goal || "—",
-      budget: form.budget || "No especificado",
-      hasMasterShopAccount: form.hasMasterShopAccount === "si",
-      source: "experiencia-web",
-      createdAt: new Date().toISOString(),
+      budget: form.budget || "Sin definir",
+      country: form.country.trim() || "—",
     })
 
   return (
@@ -186,9 +224,9 @@ export function StageCTA({
             {config.cta.successText}
           </p>
           <div className="mt-6 flex flex-col items-center justify-center gap-2.5 sm:flex-row">
-            {config.contact.whatsappUrl ? (
+            {mentorWhatsAppUrl ? (
               <a
-                href={withTextParam(config.contact.whatsappUrl, leadWaMessage())}
+                href={withTextParam(mentorWhatsAppUrl, leadWaMessage())}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex min-h-12 items-center gap-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-3 font-display text-sm font-bold text-white transition-transform hover:scale-[1.03]"
@@ -197,18 +235,7 @@ export function StageCTA({
                 {config.contact.whatsappLabel}
               </a>
             ) : null}
-            {config.contact.email ? (
-              <a
-                href={`mailto:${config.contact.email}?subject=${encodeURIComponent(
-                  "Solicitud tienda MasterShop"
-                )}&body=${encodeURIComponent(leadWaMessage())}`}
-                className="inline-flex min-h-12 items-center gap-2.5 rounded-xl border border-white/15 bg-white/[0.04] px-6 py-3 font-display text-sm font-bold text-zinc-200 transition-all hover:border-purple-500/40 hover:text-white"
-              >
-                <Mail className="h-4.5 w-4.5" aria-hidden />
-                Enviar por correo
-              </a>
-            ) : null}
-            {!config.contact.whatsappUrl && !config.contact.email ? (
+            {!mentorWhatsAppUrl ? (
               <p className="mt-1 inline-flex rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-[11px] font-light text-zinc-500">
                 Te contactaremos por los datos que dejaste.
               </p>
@@ -326,6 +353,48 @@ export function StageCTA({
                       className="min-h-11 border-white/15 bg-white/[0.04] placeholder:text-zinc-600"
                       aria-invalid={Boolean(errors.whatsapp)}
                     />
+                  </Field>
+                  <Field label="País" error={errors.country} required>
+                    <Select
+                      value={form.country}
+                      onValueChange={(v) => {
+                        manualCountryRef.current = true
+                        setForm({ ...form, country: v })
+                      }}
+                    >
+                      <SelectTrigger
+                        aria-invalid={Boolean(errors.country)}
+                        className="min-h-11 w-full min-w-0 border-white/15 bg-white/[0.04]"
+                      >
+                        <SelectValue
+                          placeholder={countryDetecting ? "Detectando tu país…" : "Selecciona tu país"}
+                        />
+                      </SelectTrigger>
+                      <SelectContent className="max-w-[calc(100vw-2.5rem)] border-purple-500/30 bg-[#140d26]">
+                        {countryOptions.map((c) => (
+                          <SelectItem
+                            key={c}
+                            value={c}
+                            className="whitespace-normal break-words focus:bg-purple-500/25"
+                          >
+                            {c}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <p className="flex items-center gap-1.5 text-[10px] leading-relaxed font-light text-zinc-600">
+                      {countryDetecting ? (
+                        <>
+                          <Loader2 className="h-3 w-3 shrink-0 animate-spin" aria-hidden />
+                          Detectando tu ubicación automáticamente…
+                        </>
+                      ) : detectedCountry && detectedCountry === form.country ? (
+                        <>
+                          <Globe className="h-3 w-3 shrink-0" aria-hidden />
+                          Detectado automáticamente — puedes cambiarlo si prefieres.
+                        </>
+                      ) : null}
+                    </p>
                   </Field>
                   <Field label="Correo electrónico" error={errors.email} required>
                     <Input
