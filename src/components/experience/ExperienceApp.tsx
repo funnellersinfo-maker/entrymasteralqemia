@@ -14,16 +14,9 @@ import { BadgeToast, type ToastBadge } from "./BadgeToast"
 import { AdminPanel } from "@/components/admin/AdminPanel"
 import { StageWelcome } from "./stages/StageWelcome"
 import { StageModel } from "./stages/StageModel"
-import { StageDropshipping } from "./stages/StageDropshipping"
 import { StageMasterShop } from "./stages/StageMasterShop"
-import { StageProducts } from "./stages/StageProducts"
 import { StageStore } from "./stages/StageStore"
-import { StageOrders } from "./stages/StageOrders"
-import { StageContent } from "./stages/StageContent"
-import { StageTraffic } from "./stages/StageTraffic"
-import { StageService } from "./stages/StageService"
 import { StageNumbers } from "./stages/StageNumbers"
-import { StageRoute } from "./stages/StageRoute"
 import { StageIncludes } from "./stages/StageIncludes"
 import { StageMentor } from "./stages/StageMentor"
 import { StageCTA } from "./stages/StageCTA"
@@ -43,16 +36,9 @@ export interface StageProps {
 const STAGE_COMPONENTS: Record<string, React.ComponentType<StageProps>> = {
   welcome: StageWelcome,
   model: StageModel,
-  dropshipping: StageDropshipping,
   mastershop: StageMasterShop,
-  products: StageProducts,
-  store: StageStore,
-  orders: StageOrders,
-  content: StageContent,
-  traffic: StageTraffic,
-  service: StageService,
+  tienda: StageStore,
   numbers: StageNumbers,
-  route: StageRoute,
   includes: StageIncludes,
   mentor: StageMentor,
   cta: StageCTA,
@@ -131,7 +117,7 @@ export function ExperienceApp() {
   }, [reset, goTo])
 
   const progressPercent = (stageIndex / (TOTAL_STAGES - 1)) * 100
-  const etapeLabel = stage.etape ? `Etapa ${stage.etape}/12` : "Sección extra"
+  const etapeLabel = stage.etape ? `Etapa ${stage.etape}/${TOTAL_STAGES}` : "Sección"
   const stageLabel = `${stage.kicker} · ${stage.navTitle}`
 
   const stageProps: StageProps = {

@@ -347,19 +347,25 @@ export function AdminPanel({
                               {new Date(lead.createdAt).toLocaleString("es-CO")}
                             </span>
                           </div>
-                          <p className="break-all text-purple-300">
-                            {lead.whatsapp} · {lead.email}
-                          </p>
-                          <p className="mt-1 font-light text-zinc-500">
-                            Experiencia: {lead.experience} · Objetivo: {lead.goal}
-                          </p>
+                          {(lead.whatsapp || lead.email) ? (
+                            <p className="break-all text-purple-300">
+                              {[lead.whatsapp, lead.email].filter(Boolean).join(" · ")}
+                            </p>
+                          ) : null}
+                          {(lead.experience || lead.goal) ? (
+                            <p className="mt-1 font-light text-zinc-500">
+                              Experiencia: {lead.experience || "—"} · Objetivo: {lead.goal || "—"}
+                            </p>
+                          ) : null}
                           <p className="mt-0.5 text-zinc-500">
                             País: <span className="font-semibold text-purple-300">{lead.country || "—"}</span> · Inversión inicial:{" "}
                             <span className="font-semibold text-purple-300">{lead.budget}</span>
                           </p>
-                          <p className="mt-0.5 text-zinc-600">
-                            Cuenta MasterShop: {lead.hasMasterShopAccount ? "Sí" : "No"}
-                          </p>
+                          {(lead.experience || lead.goal || lead.whatsapp) ? (
+                            <p className="mt-0.5 text-zinc-600">
+                              Cuenta MasterShop: {lead.hasMasterShopAccount ? "Sí" : "No"}
+                            </p>
+                          ) : null}
                         </div>
                       ))}
                     </div>

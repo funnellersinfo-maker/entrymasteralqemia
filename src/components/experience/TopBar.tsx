@@ -98,7 +98,7 @@ export function TopBar({
           </p>
         </div>
         <p className="mt-1 hidden truncate text-center text-[10px] text-zinc-600 sm:block">
-          {stageLabel} · {TOTAL_STAGES} pantallas en total
+          {stageLabel} · {TOTAL_STAGES} etapas en total
         </p>
       </div>
     </header>

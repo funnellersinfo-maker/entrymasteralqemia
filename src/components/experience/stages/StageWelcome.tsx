@@ -170,7 +170,7 @@ export function StageWelcome({ config, goNext }: StageProps) {
         className="mt-10 flex items-center justify-center gap-3 text-center"
       >
         <p className="text-[11px] text-zinc-500">
-          Una experiencia guiada de 15 pantallas · responde tus dudas de principiante · llega al final
+          Una experiencia guiada de 8 etapas · responde tus dudas de principiante · llega al final
           y solicita tu tienda
         </p>
       </motion.div>

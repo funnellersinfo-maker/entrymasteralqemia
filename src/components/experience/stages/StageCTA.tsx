@@ -24,40 +24,21 @@ import { COUNTRY_OPTIONS, detectCountry } from "@/lib/geo"
 import { BUDGET_RANGES, saveLead, type LeadRecord } from "@/lib/store"
 import { cn } from "@/lib/utils"
 
-const EXPERIENCE_OPTIONS = [
-  "Nunca he vendido en línea",
-  "He vendido de forma ocasional",
-  "Tengo una tienda activa",
-  "Conozco el dropshipping pero no he empezado",
-]
-
-const GOAL_OPTIONS = [
-  "Generar ingresos extra",
-  "Emprender en serio con mi tienda",
-  "Escalar un negocio que ya tengo",
-  "Aprender el modelo antes de invertir",
-]
+// Formulario exprés para tráfico frío: solo lo esencial que el mentor
+// necesita para calificar (nombre + presupuesto + país auto-detectado).
+// El WhatsApp del visitante llega naturalmente: el mensaje se envía desde
+// su propio WhatsApp, así que su número queda visible para el mentor.
 
 type FormState = {
   name: string
-  whatsapp: string
   country: string
-  email: string
-  experience: string
-  goal: string
   budget: string
-  hasMasterShopAccount: string
 }
 
 const INITIAL_FORM: FormState = {
   name: "",
-  whatsapp: "",
   country: "",
-  email: "",
-  experience: "",
-  goal: "",
   budget: "",
-  hasMasterShopAccount: "",
 }
 
 /**
@@ -140,12 +121,7 @@ export function StageCTA({
   const validate = (): boolean => {
     const e: Partial<Record<keyof FormState, string>> = {}
     if (form.name.trim().length < 2) e.name = "Escribe tu nombre"
-    if (!/^[+\d][\d\s().-]{6,19}$/.test(form.whatsapp.trim())) e.whatsapp = "Escribe un WhatsApp válido"
     if (!form.country.trim()) e.country = "Selecciona tu país"
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(form.email.trim())) e.email = "Escribe un correo válido"
-    if (!form.experience) e.experience = "Selecciona una opción"
-    if (!form.goal) e.goal = "Selecciona tu objetivo"
-    if (!form.hasMasterShopAccount) e.hasMasterShopAccount = "Selecciona una opción"
     // La inversión inicial es opcional: no cohibe a nadie.
     setErrors(e)
     return Object.keys(e).length === 0
@@ -161,13 +137,13 @@ export function StageCTA({
           ? crypto.randomUUID()
           : `l-${Date.now()}`,
         name: form.name.trim(),
-        whatsapp: form.whatsapp.trim(),
+        whatsapp: "",
         country: form.country.trim(),
-        email: form.email.trim(),
-        experience: form.experience,
-        goal: form.goal,
+        email: "",
+        experience: "",
+        goal: "",
         budget: form.budget || "No especificado",
-        hasMasterShopAccount: form.hasMasterShopAccount === "si",
+        hasMasterShopAccount: false,
         source: "experiencia-web",
         createdAt: new Date().toISOString(),
       }
@@ -330,7 +306,7 @@ export function StageCTA({
                     Solicita tu tienda MasterShop
                   </p>
                   <p className="mt-0.5 text-xs font-light text-zinc-500">
-                    Respóndete en menos de 2 minutos. Sin registro previo.
+                    Toma menos de 30 segundos. Sin registro previo.
                   </p>
                 </div>
 
@@ -342,16 +318,6 @@ export function StageCTA({
                       placeholder="Tu nombre"
                       className="min-h-11 border-white/15 bg-white/[0.04] placeholder:text-zinc-600"
                       aria-invalid={Boolean(errors.name)}
-                    />
-                  </Field>
-                  <Field label="WhatsApp" error={errors.whatsapp} required>
-                    <Input
-                      type="tel"
-                      value={form.whatsapp}
-                      onChange={(e) => setForm({ ...form, whatsapp: e.target.value })}
-                      placeholder="+57 300 000 0000"
-                      className="min-h-11 border-white/15 bg-white/[0.04] placeholder:text-zinc-600"
-                      aria-invalid={Boolean(errors.whatsapp)}
                     />
                   </Field>
                   <Field label="País" error={errors.country} required>
@@ -395,77 +361,6 @@ export function StageCTA({
                         </>
                       ) : null}
                     </p>
-                  </Field>
-                  <Field label="Correo electrónico" error={errors.email} required>
-                    <Input
-                      type="email"
-                      value={form.email}
-                      onChange={(e) => setForm({ ...form, email: e.target.value })}
-                      placeholder="tu@correo.com"
-                      className="min-h-11 border-white/15 bg-white/[0.04] placeholder:text-zinc-600"
-                      aria-invalid={Boolean(errors.email)}
-                    />
-                  </Field>
-                  <Field label="¿Ya tienes cuenta en MasterShop?" error={errors.hasMasterShopAccount} required>
-                    <RadioGroup
-                      value={form.hasMasterShopAccount}
-                      onValueChange={(v) => setForm({ ...form, hasMasterShopAccount: v })}
-                      className="flex h-11 items-center gap-6"
-                    >
-                      <label className="flex cursor-pointer items-center gap-2 text-sm text-zinc-300">
-                        <RadioGroupItem value="si" id="ms-si" />
-                        Sí
-                      </label>
-                      <label className="flex cursor-pointer items-center gap-2 text-sm text-zinc-300">
-                        <RadioGroupItem value="no" id="ms-no" />
-                        No
-                      </label>
-                    </RadioGroup>
-                  </Field>
-                  <Field label="Tu experiencia en e-commerce" error={errors.experience} required>
-                    <Select
-                      value={form.experience}
-                      onValueChange={(v) => setForm({ ...form, experience: v })}
-                    >
-                      <SelectTrigger
-                        aria-invalid={Boolean(errors.experience)}
-                        className="min-h-11 w-full min-w-0 border-white/15 bg-white/[0.04]"
-                      >
-                        <SelectValue placeholder="Selecciona una opción" />
-                      </SelectTrigger>
-                      <SelectContent className="max-w-[calc(100vw-2.5rem)] border-purple-500/30 bg-[#140d26]">
-                        {EXPERIENCE_OPTIONS.map((o) => (
-                          <SelectItem
-                            key={o}
-                            value={o}
-                            className="whitespace-normal break-words focus:bg-purple-500/25"
-                          >
-                            {o}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </Field>
-                  <Field label="Tu objetivo principal" error={errors.goal} required>
-                    <Select value={form.goal} onValueChange={(v) => setForm({ ...form, goal: v })}>
-                      <SelectTrigger
-                        aria-invalid={Boolean(errors.goal)}
-                        className="min-h-11 w-full min-w-0 border-white/15 bg-white/[0.04]"
-                      >
-                        <SelectValue placeholder="Selecciona tu objetivo" />
-                      </SelectTrigger>
-                      <SelectContent className="max-w-[calc(100vw-2.5rem)] border-purple-500/30 bg-[#140d26]">
-                        {GOAL_OPTIONS.map((o) => (
-                          <SelectItem
-                            key={o}
-                            value={o}
-                            className="whitespace-normal break-words focus:bg-purple-500/25"
-                          >
-                            {o}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
                   </Field>
 
                   {/* Inversión inicial disponible */}

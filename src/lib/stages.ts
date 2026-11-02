@@ -1,5 +1,15 @@
 // ============================================================
 // Definición de etapas, insignias y preguntas de comprobación
+//
+// Versión de alta conversión para tráfico frío: 8 etapas.
+// · 01 Bienvenida        (gancho)
+// · 02 El modelo         (cómo funciona vender sin inventario + margen)
+// · 03 La plataforma     (MasterShop + panel real — momento de prueba)
+// · 04 Tu tienda         (llave en mano: criterios, construcción, pedidos)
+// · 05 Tus números       (calculadora de rentabilidad)
+// · 06 La mentoría       (qué incluye)
+// · 07 Tu mentor         (confianza)
+// · 08 Da el paso        (formulario exprés → WhatsApp)
 // ============================================================
 
 export interface BadgeDef {
@@ -18,8 +28,8 @@ export interface QuizDef {
 
 export interface StageDef {
   id: string
-  /** Número de etapa visible (1-12) o null para secciones complementarias */
-  etape: number | null
+  /** Número de etapa visible (1-8) */
+  etape: number
   kicker: string
   navTitle: string
   /** Texto por defecto (editable vía config.stages) */
@@ -43,38 +53,12 @@ export const STAGES: StageDef[] = [
     id: "model",
     etape: 2,
     kicker: "ETAPA 02 · EL MODELO",
-    navTitle: "Modelo de negocio",
-    title: "¿Cómo funciona vender por internet?",
+    navTitle: "El modelo",
+    title: "Vender por internet, sin inventario propio",
     subtitle:
-      "Una tienda online es un sistema: productos, proveedores, clientes y logística conectados. Descúbrelo pieza por pieza.",
+      "El cliente paga en tu tienda, el proveedor despacha el producto y tú administras el margen. Descubre el flujo completo.",
     badge: {
       id: "b-model",
-      icon: "brain",
-      title: "Modelo Mental",
-      description: "Comprendiste el flujo del comercio electrónico.",
-    },
-    quiz: {
-      question: "En una venta online, ¿quién entrega físicamente el producto al cliente?",
-      options: [
-        "La tienda online (la web)",
-        "El proveedor o el servicio logístico",
-        "El banco que procesa el pago",
-      ],
-      correctIndex: 1,
-      explanation:
-        "Correcto. La tienda recibe el pedido, pero la entrega física depende del proveedor y del servicio logístico según sus condiciones.",
-    },
-  },
-  {
-    id: "dropshipping",
-    etape: 3,
-    kicker: "ETAPA 03 · DROPSHIPPING",
-    navTitle: "Dropshipping",
-    title: "Vender sin inventario propio",
-    subtitle:
-      "Con dropshipping vendes sin almacenar productos: el pedido se coordina con el proveedor, quien lo despacha por ti.",
-    badge: {
-      id: "b-margin",
       icon: "trending",
       title: "Margen Decodificado",
       description: "Entendiste cómo se calcula el margen de una venta.",
@@ -89,30 +73,21 @@ export const STAGES: StageDef[] = [
   },
   {
     id: "mastershop",
-    etape: 4,
-    kicker: "ETAPA 04 · LA PLATAFORMA",
+    etape: 3,
+    kicker: "ETAPA 03 · LA PLATAFORMA",
     navTitle: "MasterShop",
     title: "MasterShop: la plataforma que facilita tu operación",
     subtitle:
       "MasterShop es una plataforma colombiana que reúne las piezas del dropshipping para que las gestiones desde un solo lugar.",
   },
   {
-    id: "products",
-    etape: 5,
-    kicker: "ETAPA 05 · PRODUCTOS",
-    navTitle: "Selección de productos",
-    title: "Elige productos con criterio",
+    id: "tienda",
+    etape: 4,
+    kicker: "ETAPA 04 · TU TIENDA",
+    navTitle: "Tienda llave en mano",
+    title: "Tu tienda llave en mano",
     subtitle:
-      "No se trata de vender “lo que te guste”, sino de analizar demanda, márgenes, competencia y presentación. Explora las categorías.",
-  },
-  {
-    id: "store",
-    etape: 6,
-    kicker: "ETAPA 06 · TU TIENDA",
-    navTitle: "Construcción de tienda",
-    title: "Construye tu tienda online",
-    subtitle:
-      "De la configuración inicial a una tienda lista para recibir pedidos. Con acompañamiento para dejarla operando.",
+      "De la selección de productos con criterio a una tienda construida con acompañamiento y lista para recibir pedidos.",
     badge: {
       id: "b-store",
       icon: "store",
@@ -121,69 +96,9 @@ export const STAGES: StageDef[] = [
     },
   },
   {
-    id: "orders",
-    etape: 7,
-    kicker: "ETAPA 07 · OPERACIÓN",
-    navTitle: "Pedidos y entregas",
-    title: "El viaje de un pedido",
-    subtitle:
-      "Desde que el cliente compra hasta que recibe su producto. Sigue el recorrido operativo paso a paso.",
-    badge: {
-      id: "b-orders",
-      icon: "truck",
-      title: "Operador Logístico",
-      description: "Dominaste el flujo operativo de pedidos y entregas.",
-    },
-    quiz: {
-      question: "¿Cuál es el primer paso cuando llega un pedido a tu tienda?",
-      options: [
-        "Publicar más contenido en redes",
-        "Recibir y revisar la información del pedido",
-        "Pedir otro producto al proveedor",
-      ],
-      correctIndex: 1,
-      explanation:
-        "Correcto. Todo comienza por recibir bien la información del pedido para gestionarlo correctamente con el proveedor.",
-    },
-  },
-  {
-    id: "content",
-    etape: 8,
-    kicker: "ETAPA 08 · CONTENIDO",
-    navTitle: "Creación de contenido",
-    title: "Crea contenido que atraiga clientes",
-    subtitle:
-      "El contenido es el escaparate de tu tienda. Videos cortos, demostraciones y ganchos que detienen el scroll.",
-  },
-  {
-    id: "traffic",
-    etape: 9,
-    kicker: "ETAPA 09 · CLIENTES",
-    navTitle: "Adquisición de clientes",
-    title: "Aprende a conseguir clientes",
-    subtitle:
-      "Hay dos grandes caminos: el orgánico (contenido que atrae) y el pago (publicidad que impulsa). Conoce ambos.",
-    quiz: {
-      question: "Además de inversión, ¿qué requiere la publicidad paga para funcionar?",
-      options: ["Suerte y timing", "Solo elegir el mejor horario", "Pruebas, medición y optimización"],
-      correctIndex: 2,
-      explanation:
-        "Correcto. La publicidad exige presupuesto, pruebas constantes y optimización. Ningún resultado está garantizado.",
-    },
-  },
-  {
-    id: "service",
-    etape: 10,
-    kicker: "ETAPA 10 · ATENCIÓN",
-    navTitle: "Atención y conversión",
-    title: "Atiende, convierte y automatiza",
-    subtitle:
-      "Responder bien y a tiempo convierte preguntas en ventas. Con procesos e IA de apoyo, la atención escala.",
-  },
-  {
     id: "numbers",
-    etape: 11,
-    kicker: "ETAPA 11 · NÚMEROS",
+    etape: 5,
+    kicker: "ETAPA 05 · TUS NÚMEROS",
     navTitle: "Rentabilidad",
     title: "Números, rentabilidad y crecimiento",
     subtitle:
@@ -207,24 +122,9 @@ export const STAGES: StageDef[] = [
     },
   },
   {
-    id: "route",
-    etape: 12,
-    kicker: "ETAPA 12 · TU RUTA",
-    navTitle: "Ruta de 0 a 100",
-    title: "Tu ruta de cero a 100",
-    subtitle:
-      "Diez niveles que resumen todo el camino: del modelo al escalamiento. Este es el mapa que recorrerás en la mentoría.",
-    badge: {
-      id: "b-route",
-      icon: "map",
-      title: "Explorador de la Ruta",
-      description: "Completaste el mapa de aprendizaje de 0 a 100.",
-    },
-  },
-  {
     id: "includes",
-    etape: null,
-    kicker: "SECCIÓN · LA MENTORÍA",
+    etape: 6,
+    kicker: "ETAPA 06 · LA MENTORÍA",
     navTitle: "Qué incluye",
     title: "¿Qué incluye la mentoría?",
     subtitle:
@@ -232,16 +132,16 @@ export const STAGES: StageDef[] = [
   },
   {
     id: "mentor",
-    etape: null,
-    kicker: "SECCIÓN · TU MENTOR",
+    etape: 7,
+    kicker: "ETAPA 07 · TU MENTOR",
     navTitle: "El mentor",
     title: "Conoce a tu mentor",
     subtitle: "Alguien que ya camina este camino y te acompaña paso a paso.",
   },
   {
     id: "cta",
-    etape: null,
-    kicker: "SECCIÓN FINAL",
+    etape: 8,
+    kicker: "ETAPA 08 · DA EL PASO",
     navTitle: "Da el siguiente paso",
     title: "Tu tienda online puede comenzar hoy.",
     subtitle:
